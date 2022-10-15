@@ -28,7 +28,12 @@ public class HashTable {
         return key.charAt(0) % this.size();
     }
 
-    public void put(String key, String value) {
+    /**
+     * Chaining 충돌 방지 알고리즘을 적용한 데이터 적재 메소드
+     * @param key
+     * @param value
+     */
+    public void chainingPut(String key, String value) {
         int idx = this.findIndex(key);
         Data newData = new Data(key, value);
 
@@ -49,7 +54,12 @@ public class HashTable {
         data.next = newData; //next값이 없는 가장 마지막 data 뒤에 새로운 data를 적재.
     }
 
-    public String get(String key) {
+    /**
+     * Chaining 충돌 방지 알고리즘을 이용한 key 기준 조회 메소드
+     * @param key
+     * @return
+     */
+    public String chainingGet(String key) {
         int index = this.findIndex(key);
         //data의 key에 해당하는 데이터가 적재되지 않음.
         if (hashTable[index] == null) {
@@ -68,15 +78,15 @@ public class HashTable {
         return EMPTY_DATA;
     }
 
-    public String get(int index) {
+    /**
+     * Chaining 충돌 방지 알고리즘을 이용한 index 기준 조회 메소드
+     * @param index
+     * @return
+     */
+    public String chainingGet(int index) {
         StringBuilder sb = new StringBuilder();
-
-        if (index < 0 || index > this.size()) {
-            return INVALID_INDEX;
-        }
-        if (hashTable[index] == null) {
-            return EMPTY_DATA;
-        }
+        if (!isValidIndex(index)) return null;
+        if (isNull(hashTable[index])) return null;
 
         Data data = hashTable[index];
         while (data != null) {
@@ -87,11 +97,86 @@ public class HashTable {
         return sb.toString();
     }
 
+    /**
+     * Linear Probing 충돌 방지 알고리즘을 적용한 데이터 적재 메소드
+     * @param key
+     * @param value
+     */
+    public void lpPut(String key, String value) {
+        int index = this.findIndex(key);
+        Data newData = new Data(key, value);
+
+        //index에 해당하는 데이터 첫 적재
+        if (hashTable[index] == null) {
+            hashTable[index] = newData;
+            return;
+        }
+
+        //index에 이미 데이터가 적재중이면 뒤의 비어있는 index에 적재
+        Data data = hashTable[index];
+        while (data != null) {
+            checkDuplication(data, newData);
+            data = hashTable[++index];
+            if (index == this.size()) {
+                System.out.println(INVALID_INDEX);
+                return;
+            }
+        }
+        hashTable[index] = newData;
+    }
+
+    /**
+     * Linear Probing 충돌 방지 알고리즘을 적용한 key 기준 데이터 조회 메소드
+     * @param key
+     * @return
+     */
+    public String lpGet(String key) {
+        int index = this.findIndex(key);
+        if (isNull(hashTable[index])) return EMPTY_DATA;
+
+        Data data = hashTable[index];
+        while (data != null) {
+            if (key.equals(data.key)) {
+                return data.value;
+            }
+            data = hashTable[++index];
+        }
+        return EMPTY_DATA;
+    }
+
+    /**
+     * Linear Probing 충돌 방지 알고리즘을 적용한 index 기준 데이터 조회 메소드
+     * @param index
+     * @return
+     */
+    public String lpGet(int index) {
+        if (!isValidIndex(index)) return null;
+        if (isNull(hashTable[index])) return null;
+
+        return hashTable[index].value;
+    }
+
     public boolean checkDuplication(Data prevData, Data newData) {
         if (prevData.key.equals(newData.key)) {
             prevData.value = newData.value;
             return true;
         }
         return false;
+    }
+
+    public boolean isNull(Data data) {
+        if (data == null) {
+            System.out.println(EMPTY_DATA);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isValidIndex(int index) {
+        if (index < 0 || index > this.size()) {
+            System.out.println(INVALID_INDEX);
+            return false;
+        }
+        return true;
     }
 }
