@@ -42,4 +42,8 @@ Self study for algorithm
 
   #### 2022.10.19
     BinarySearchTree
-    - 
+    - insertNode, search 기능 구현
+
+  #### 2022.10.24
+    BinarySearchTree
+    - deleteNode leaf노드/child노드가 1개일때 기능 구현
